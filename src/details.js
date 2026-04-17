@@ -2,82 +2,101 @@ import './style.css';
 import './details.css';
 import { initMap, loadMapTiler } from './api/maps';
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Fetch data from localStorage
+document.addEventListener('DOMContentLoaded', async () => {
     const rawData = localStorage.getItem('selectedRouteData');
-    
+
     if (!rawData) {
-        document.getElementById('route-title').innerText = "ERROR: No Data Found";
+        const title = document.getElementById('route-title');
+        if (title) title.innerText = 'ERROR: No Data Found';
         return;
     }
 
-    const routeData = JSON.parse(rawData);
-    
-    // 2. Populate Header & Metrics
-    document.getElementById('route-title').innerText = `Intelligence Report: ${routeData.summary}`;
-    document.getElementById('risk-score-value').innerText = routeData.riskScore;
-    
-    const badge = document.getElementById('risk-level-badge');
-    badge.innerText = `${routeData.riskLevel.toUpperCase()} RISK WARNING`;
-    
-    // Set colors based on risk
-    let mainColor = '#10b981'; // low
-    if (routeData.riskLevel === 'Medium') mainColor = '#f59e0b';
-    if (routeData.riskLevel === 'High') mainColor = '#ef4444';
-    
-    document.documentElement.style.setProperty('--risk-color', mainColor);
-    badge.style.color = mainColor;
-    
-    document.getElementById('val-distance').innerText = routeData.distance;
-    document.getElementById('val-duration').innerText = routeData.duration;
-    document.getElementById('val-cost').innerText = `₹${routeData.cost.totalCost}`;
-    
-    // 3. Populate Weather
-    document.getElementById('val-weather-icon').innerText = routeData.weather.icon;
-    document.getElementById('val-weather-type').innerText = routeData.weather.type + " Conditions";
-    document.getElementById('val-weather-temp').innerText = routeData.weather.temp;
-    document.getElementById('val-weather-desc').innerText = routeData.riskReason;
+    let routeData;
+    try {
+        routeData = JSON.parse(rawData);
+    } catch (error) {
+        const title = document.getElementById('route-title');
+        if (title) title.innerText = 'ERROR: Invalid Route Data';
+        console.error('Invalid selectedRouteData:', error);
+        return;
+    }
 
-    // 4. Initialize Isolated Map View
+    const title = document.getElementById('route-title');
+    const scoreValue = document.getElementById('risk-score-value');
+    const badge = document.getElementById('risk-level-badge');
+    const distance = document.getElementById('val-distance');
+    const duration = document.getElementById('val-duration');
+    const cost = document.getElementById('val-cost');
+    const weatherIcon = document.getElementById('val-weather-icon');
+    const weatherType = document.getElementById('val-weather-type');
+    const weatherTemp = document.getElementById('val-weather-temp');
+    const weatherDesc = document.getElementById('val-weather-desc');
+
+    if (title) title.innerText = `Intelligence Report: ${routeData.summary || 'Route'}`;
+    if (scoreValue) scoreValue.innerText = routeData.riskScore ?? '--';
+
+    const riskLevel = routeData.riskLevel || 'Low';
+    let mainColor = '#10b981';
+    if (riskLevel === 'Medium') mainColor = '#f59e0b';
+    if (riskLevel === 'High') mainColor = '#ef4444';
+
+    document.documentElement.style.setProperty('--risk-color', mainColor);
+
+    if (badge) {
+        badge.innerText = `${riskLevel.toUpperCase()} RISK WARNING`;
+        badge.style.color = mainColor;
+    }
+
+    if (distance) distance.innerText = routeData.distance || '--';
+    if (duration) duration.innerText = routeData.duration || '--';
+    if (cost) cost.innerText = `₹${routeData.cost?.totalCost ?? '--'}`;
+
+    if (weatherIcon) weatherIcon.innerText = routeData.weather?.icon || '--';
+    if (weatherType) weatherType.innerText = `${routeData.weather?.type || '--'} Conditions`;
+    if (weatherTemp) weatherTemp.innerText = routeData.weather?.temp || '--';
+    if (weatherDesc) weatherDesc.innerText = routeData.riskReason || 'No weather insight available.';
+
     const mapElement = document.getElementById('isolated-map');
+
     if (mapElement) {
-        initMap(mapElement, {
-            zoom: 12,
-            interactive: false // Disable interaction for reports
-        }).then(map => {
+        try {
+            const map = await initMap(mapElement, {
+                zoom: 12,
+                interactive: false
+            });
+
             map.on('load', async () => {
                 const maptilersdk = await loadMapTiler();
-                
-                // Draw Route
-                if (routeData.route && routeData.route.geometry) {
+
+                if (routeData.route?.geometry) {
                     const geojson = routeData.route.geometry;
-                    
+
                     map.addSource('route', {
-                        'type': 'geojson',
-                        'data': {
-                            'type': 'Feature',
-                            'properties': {},
-                            'geometry': geojson
+                        type: 'geojson',
+                        data: {
+                            type: 'Feature',
+                            properties: {},
+                            geometry: geojson
                         }
                     });
 
                     map.addLayer({
-                        'id': 'route',
-                        'type': 'line',
-                        'source': 'route',
-                        'layout': {
+                        id: 'route',
+                        type: 'line',
+                        source: 'route',
+                        layout: {
                             'line-join': 'round',
                             'line-cap': 'round'
                         },
-                        'paint': {
+                        paint: {
                             'line-color': mainColor,
                             'line-width': 6,
                             'line-opacity': 0.9
                         }
                     });
 
-                    // Add markers
-                    const coords = geojson.coordinates;
+                    const coords = geojson.coordinates || [];
+
                     if (coords.length > 0) {
                         const start = coords[0];
                         const end = coords[coords.length - 1];
@@ -90,24 +109,31 @@ document.addEventListener("DOMContentLoaded", () => {
                             .setLngLat(end)
                             .addTo(map);
 
-                        // Fit bounds
-                        const bounds = coords.reduce((bounds, coord) => {
-                            return bounds.extend(coord);
-                        }, new maptilersdk.LngLatBounds(coords[0], coords[0]));
-                        
+                        const bounds = coords.reduce(
+                            (bounds, coord) => bounds.extend(coord),
+                            new maptilersdk.LngLatBounds(coords[0], coords[0])
+                        );
+
                         map.fitBounds(bounds, { padding: 40 });
                     }
                 }
             });
+        } catch (error) {
+            console.error('Map initialization failed:', error);
+        }
+    }
+
+    const closeBtn = document.getElementById('close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            window.location.href = './index.html';
         });
     }
 
-    // 6. Bind Buttons
-    document.getElementById('close-btn').addEventListener('click', () => {
-        window.location.href = '/';
-    });
-
-    document.getElementById('print-btn').addEventListener('click', () => {
-        window.print();
-    });
+    const printBtn = document.getElementById('print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+    }
 });
