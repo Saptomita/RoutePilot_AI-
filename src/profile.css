@@ -239,6 +239,12 @@
   font-family: var(--font-main);
   font-size: 0.95rem;
   transition: all 0.3s;
+  color-scheme: dark; /* Ensures browser UI elements like dropdowns match dark theme */
+}
+
+.input-field option {
+  background-color: #0f172a; /* Matches the darkest part of the background */
+  color: #fff;
 }
 
 .input-field:focus {
