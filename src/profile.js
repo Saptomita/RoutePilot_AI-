@@ -3,12 +3,13 @@ import './profile.css';
 
 document.addEventListener("DOMContentLoaded", () => {
     // Basic interaction logic for Settings Page
-    
+
     // Back to Map
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            window.location.href = '/';
+        backBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            window.location.href = './index.html';
         });
     }
 
@@ -17,22 +18,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const savedData = localStorage.getItem('userProfileData');
         if (savedData) {
             const data = JSON.parse(savedData);
-            
+
+            // Helper to safely set values
+            const safeSetVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && val !== undefined) el.value = val;
+            };
+
             // Identity
+            safeSetVal('profile-name', data.name);
             if (data.name) {
-                document.getElementById('profile-name').value = data.name;
-                document.getElementById('display-name').innerText = data.name;
+                const displayEl = document.getElementById('display-name');
+                if (displayEl) displayEl.innerText = data.name;
             }
-            if (data.phone) document.getElementById('profile-phone').value = data.phone;
-            if (data.email) document.getElementById('profile-email').value = data.email;
-            if (data.password) document.getElementById('profile-password').value = data.password;
-            
+            safeSetVal('profile-phone', data.phone);
+            safeSetVal('profile-email', data.email);
+            safeSetVal('profile-password', data.password);
+
             // System Preferences
-            if (data.theme) document.getElementById('theme-preset').value = data.theme;
-            if (data.weather) document.getElementById('weather-source').value = data.weather;
-            if (data.vehicle) document.getElementById('vehicle-type').value = data.vehicle;
+            safeSetVal('theme-preset', data.theme);
+            safeSetVal('weather-source', data.weather);
+            safeSetVal('vehicle-type', data.vehicle);
+
             if (data.notifications !== undefined) {
-                document.getElementById('notifications-toggle').checked = data.notifications;
+                const toggle = document.getElementById('notifications-toggle');
+                if (toggle) toggle.checked = data.notifications;
             }
         }
     };
@@ -44,51 +54,54 @@ document.addEventListener("DOMContentLoaded", () => {
     if (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            // 2. Collect Data
-            const profileName = document.getElementById('profile-name').value;
+
+            // Helper to safely get values
+            const safeGetVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : null;
+            };
+
+            const profileName = safeGetVal('profile-name');
             const profileData = {
                 name: profileName,
-                phone: document.getElementById('profile-phone').value,
-                email: document.getElementById('profile-email').value,
-                password: document.getElementById('profile-password').value,
-                theme: document.getElementById('theme-preset').value,
-                weather: document.getElementById('weather-source').value,
-                vehicle: document.getElementById('vehicle-type').value,
-                notifications: document.getElementById('notifications-toggle').checked
+                phone: safeGetVal('profile-phone'),
+                email: safeGetVal('profile-email'),
+                password: safeGetVal('profile-password'),
+                theme: safeGetVal('theme-preset'),
+                weather: safeGetVal('weather-source'),
+                vehicle: safeGetVal('vehicle-type')
             };
-            
-            // 3. Save to Local Storage
+
+            const toggle = document.getElementById('notifications-toggle');
+            if (toggle) profileData.notifications = toggle.checked;
+
             localStorage.setItem('userProfileData', JSON.stringify(profileData));
-            
-            // Update left panel identity preview
-            document.getElementById('display-name').innerText = profileName;
 
-            // Visual Save Button Feedback
+            if (profileName) {
+                const displayEl = document.getElementById('display-name');
+                if (displayEl) displayEl.innerText = profileName;
+            }
+
             const btn = form.querySelector('.save-btn');
-            const originalContent = btn.innerHTML;
-            
-            // Simulate Save loading state
-            btn.innerHTML = "<span>Syncing with Cloud...</span>";
-            btn.style.opacity = "0.7";
-            btn.disabled = true;
+            if (btn) {
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = "<span>Syncing with Cloud...</span>";
+                btn.style.opacity = "0.7";
+                btn.disabled = true;
 
-            setTimeout(() => {
-                btn.innerHTML = "<span>Configuration Locked!</span>";
-                btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
-                btn.style.opacity = "1";
-                
-                // Optional: Update global app state if needed
-                
                 setTimeout(() => {
-                    // Reset button to original state
-                    btn.innerHTML = originalContent;
-                    btn.style.background = ""; // reverts to CSS class gradient
-                    btn.style.opacity = "";
-                    btn.disabled = false;
-                }, 2000);
-                
-            }, 1000);
+                    btn.innerHTML = "<span>Configuration Locked!</span>";
+                    btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                    btn.style.opacity = "1";
+
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.style.background = "";
+                        btn.style.opacity = "";
+                        btn.disabled = false;
+                    }, 2000);
+                }, 1000);
+            }
         });
     }
 });
