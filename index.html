@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoutePilot AI | Intelligent Logistics Routing</title>
+    <meta name="description" content="AI-driven real-time disruption prediction and smart routing system for modern logistics." />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Mapbox API and Weather logic handled via dynamic module loading in src/api -->
+
+    <style>
+      /* ===== SPLASH SCREEN ===== */
+      #splash-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: url('/landing-bg.png') center/cover no-repeat;
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #splash-screen::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(11,17,33,0.75) 0%, rgba(11,17,33,0.5) 60%, rgba(11,17,33,0.85) 100%);
+        z-index: 0;
+      }
+      .splash-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        animation: splashFadeIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      @keyframes splashFadeIn {
+        from { opacity: 0; transform: translateY(30px) scale(0.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .splash-logo {
+        width: clamp(150px, 24vw, 260px);
+        margin-bottom: 5px;
+        transition: transform 0.3s ease;
+      }
+      .splash-brand-name {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(2rem, 4.5vw, 3.2rem);
+        font-weight: 800;
+        color: #ffffff;
+        margin-top: -15px;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .route-accent {
+        color: #38bdf8;
+      }
+      .pilot-accent {
+        color: #10b981;
+      }
+      @keyframes logoPulse {
+        0%, 100% { transform: scale(1); }
+        50%       { transform: scale(1.05); }
+      }
+      .splash-content img {
+          animation: logoPulse 4s ease-in-out infinite;
+      }
+      .splash-big-tagline {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+        font-weight: 700;
+        color: #ffffff;
+        margin-top: 24px;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 30px rgba(0,0,0,0.5);
+        line-height: 1.2;
+        text-align: center;
+      }
+
+      /* Enter Arrow Button */
+      .splash-enter-btn {
+        margin-top: 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        opacity: 0;
+        animation: arrowAppear 1s ease 1.4s forwards;
+        transition: transform 0.3s;
+      }
+      .splash-enter-btn:hover {
+        transform: translateY(-5px);
+      }
+      @keyframes arrowAppear {
+        from { opacity: 0; transform: translateY(15px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .splash-enter-btn span {
+        color: rgba(255,255,255,0.55);
+      }
+      .arrow-circle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 2px solid rgba(56, 189, 248, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(56, 189, 248, 0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.25), inset 0 0 20px rgba(56, 189, 248, 0.05);
+        animation: arrowBounce 1.8s ease-in-out infinite;
+        transition: all 0.3s;
+      }
+      .splash-enter-btn:hover .arrow-circle {
+        background: rgba(56, 189, 248, 0.2);
+        border-color: rgba(56, 189, 248, 1);
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.5);
+      }
+      @keyframes arrowBounce {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(6px); }
+      }
+      .arrow-circle svg {
+        width: 28px;
+        height: 28px;
+        stroke: #38bdf8;
+      }
+
+      /* Splash exit animation */
+      #splash-screen.exit {
+        opacity: 0;
+        transform: scale(1.04);
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 1: Splash / Intro                                      -->
+    <!-- ============================================================ -->
+    <div id="splash-screen">
+      <div class="splash-content">
+        <img src="/logo.png" alt="RoutePilot AI" class="splash-logo" />
+
+        <p class="splash-big-tagline">Navigate Smarter. <span style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Deliver Faster.</span></p>
+
+        <button class="splash-enter-btn" id="splash-enter-btn" onclick="enterLogin()">
+          <div class="arrow-circle">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 2: Login + Nav + Contact Footer                        -->
+    <!-- ============================================================ -->
+    <div id="auth-screen" class="auth-overlay hidden" style="display: none; overflow-y: auto;">
+      <div class="landing-bg-layer" style="position: fixed; inset: 0; background: url('/landing-bg.png') center/cover no-repeat; z-index: -2;"></div>
+      <div class="landing-bg-overlay" style="position: fixed; inset: 0; background: linear-gradient(to bottom, rgba(11,17,33,0.8) 0%, rgba(11,17,33,0.5) 50%, rgba(11,17,33,0.9) 100%); z-index: -1;"></div>
+      
+      <!-- Top Navigation -->
+      <nav class="landing-nav">
+        <img src="/logo.png" alt="RoutePilot" class="nav-logo" />
+        <ul class="nav-links" style="align-items: center;">
+          <li><a href="#" onclick="event.preventDefault(); window.scrollTo({top: 0, behavior: 'smooth'})">Home</a></li>
+          <li><a href="#services-section" onclick="event.preventDefault(); document.getElementById('services-section').scrollIntoView({behavior: 'smooth'})">Services</a></li>
+          <li><a href="#contact-section" onclick="event.preventDefault(); document.getElementById('contact-section').scrollIntoView({behavior: 'smooth'})">Contact</a></li>
+        </ul>
+        <button class="nav-btn">Request Access</button>
+      </nav>
+
+      <!-- Center Auth Card -->
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 20px 60px;">
+        <div class="auth-card">
+        <h2 class="auth-title">System Login</h2>
+        
+        <form id="login-form" class="auth-form">
+          <div class="input-group minimalist">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="auth-email" placeholder="Email address" required class="auth-input-min" />
+          </div>
+          
+          <div class="input-group minimalist" style="margin-top: 30px;">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="auth-password" placeholder="Password" required class="auth-input-min" />
+          </div>
+
+          <div class="auth-sub-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" style="accent-color: var(--accent-primary);" checked /> Remember me
+            </label>
+            <a href="#" style="color: var(--accent-primary); text-decoration: none;">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="primary-btn login-btn">
+            Login
+          </button>
+          
+          <p class="auth-footer" style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+            Don't have clearance? <a href="#" style="color: #fff; font-weight: 600; text-decoration: none;">Register</a>
+          </p>
+        </form>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- NEW: SERVICES SECTION                                         -->
+      <!-- ============================================================ -->
+      <section id="services-section" style="padding: 120px 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;">
+        <div style="text-align: center; margin-bottom: 70px;">
+          <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: #fff; margin-bottom: 20px;">
+            Next-Gen <span class="accent">Logistics Engine</span>
+          </h2>
+          <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto;">
+            Our AI-driven platform revolutionizes the efficiency and safety of global shipments through real-time intelligence.
+          </p>
+        </div>
+
+        <div class="services-grid">
+          <!-- Service 1: Smart Route Optimization -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3>Smart Route Optimization</h3>
+            <p>Utilize advanced machine learning to identify the fastest paths while reducing fuel consumption and costs.</p>
+          </div>
+
+          <!-- Service 2: Traffic-Aware Navigation -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-navigation"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            </div>
+            <h3>Traffic-Aware Navigation</h3>
+            <p>Bypass delays with real-time congestion analysis and predictive traffic growth monitoring.</p>
+          </div>
+
+          <!-- Service 3: Weather-Integrated Routing -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-rain"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+            </div>
+            <h3>Weather-Integrated Routing</h3>
+            <p>Automated risk assessment for rain, snow, and extreme winds to keep your fleet safe from atmospheric disruptions.</p>
+          </div>
+
+          <!-- Service 4: Travel Cost Estimation -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>
+            </div>
+            <h3>Travel Cost Estimation</h3>
+            <p>Precise calculations for fuel, tolls, and maintenance cycles based on specific vehicle profiles.</p>
+          </div>
+
+          <!-- Service 5: Nearby Essentials Finder -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <h3>Nearby Essentials Finder</h3>
+            <p>Locate fueling stations, rest stops, and emergency services dynamically along your active route.</p>
+          </div>
+
+          <!-- Service 6: Multi-Route Comparison -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+            <h3>Multi-Route Comparison</h3>
+            <p>Overlay multiple possibilities to choose the best trade-off between speed, safety, and operational expense.</p>
+          </div>
+
+          <!-- Service 7: Personalized Experience -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-cog"><path d="M11.5 15H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="11" r="3"/><path d="M19 8v1"/><path d="M19 13v1"/><path d="m16.4 9.5 1.7.5"/><path d="m19.9 11.5 1.7.5"/><path d="m16.4 12.5 1.7-.5"/><path d="m19.9 10.5 1.7-.5"/></svg>
+            </div>
+            <h3>Personalized Route Experience</h3>
+            <p>Tailor your navigation preferences for vehicle type, cargo priority, and operator fatigue management.</p>
+          </div>
+
+          <!-- Service 8: Smart Alerts -->
+          <div class="service-card">
+            <div class="service-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </div>
+            <h3>Smart Alerts & Notifications</h3>
+            <p>Instant push notifications for sudden weather shifts, road closures, or critical route deviation.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer / Contact section -->
+      <footer id="contact-section" style="padding: 100px 20px; background: rgba(11,17,33,0.95); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 1;">
+        <h3 style="color: #fff; font-size: 2rem; margin-bottom: 15px; font-family: var(--font-heading);">Contact Us</h3>
+        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">For enterprise logistics inquiries, API access, and dedicated support, please reach out directly.</p>
+        <div style="margin-top: 40px; display: inline-block; padding: 25px 50px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;">System Owner</div>
+          <div style="color: var(--accent-primary); font-size: 2rem; font-weight: 700; letter-spacing: -0.02em;">Saptomita</div>
+          <div style="color: #fff; font-size: 1.25rem; margin-top: 8px; opacity: 0.9; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            8034657897
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 3: Dashboard (Map + Sidebar)                           -->
+    <!-- ============================================================ -->
+    <div id="app" class="split-layout">
+      <!-- Left Panel (UI) -->
+      <aside class="left-panel">
+        <!-- Header -->
+        <header class="glass-panel main-header">
+          <div class="logo">
+            <h1>RoutePilot <span class="accent">AI</span></h1>
+          </div>
+          <div class="status-indicator">
+            <span class="pulse-dot"></span>
+            <span class="status-text" title="Live Intelligence Active" style="margin-right: 15px;">Live</span>
+            <a href="/profile.html" class="settings-btn" style="color: var(--text-secondary); text-decoration: none; font-size: 1.2rem;" title="User Profile & Settings">⚙️</a>
+          </div>
+        </header>
+
+        <div class="sidebar-scroll">
+          <!-- Welcome Card -->
+          <section id="welcome-card" class="glass-panel welcome-card">
+            <div class="hero-image" style="background-image: url('/hero-bg.png')"></div>
+            <div class="welcome-content">
+              <h3>Intelligent Logistics</h3>
+              <p>Risk-aware pathfinding for modern fleets. Enter your origin and destination to begin AI analysis.</p>
+            </div>
+          </section>
+
+          <!-- Input Card -->
+          <section class="glass-panel input-card">
+            <h2 class="section-title">Route Planning</h2>
+            <div class="input-group">
+              <label for="origin-input">Origin</label>
+              <div class="input-wrapper">
+                <span class="icon">📍</span>
+                <input type="text" id="origin-input" placeholder="Shipment source..." />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="destination-input">Destination</label>
+              <div class="input-wrapper">
+                <span class="icon">🏁</span>
+                <input type="text" id="destination-input" placeholder="Delivery point..." />
+              </div>
+            </div>
+            
+            <!-- Travel Cost Estimator Inputs -->
+            <div class="cost-estimator-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; margin-bottom: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+              <div class="input-group">
+                <label for="vehicle-type">Vehicle Type</label>
+                <div class="input-wrapper">
+                  <span class="icon">🚗</span>
+                  <select id="vehicle-type">
+                    <option value="car">Car (20 km/L)</option>
+                    <option value="bike">Bike (50 km/L)</option>
+                    <option value="van">Van (14 km/L)</option>
+                    <option value="truck">Truck (4 km/L)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="fuel-price">Fuel Price (₹/L)</label>
+                <div class="input-wrapper">
+                  <span class="icon">⛽</span>
+                  <input type="number" id="fuel-price" value="100.00" step="0.5" />
+                </div>
+              </div>
+            </div>
+            <button id="find-routes-btn" class="primary-btn">
+              <span>Calculate Smart Routes</span>
+              <span class="btn-shine"></span>
+            </button>
+          </section>
+
+          <!-- Insights Dashboard (Hidden by default) -->
+          <section id="insights-panel" class="glass-panel dashboard-card hidden">
+            <h2 class="section-title">Route Insights</h2>
+            <div id="route-options-list">
+              <!-- Route cards injected here -->
+            </div>
+          </section>
+        </div>
+      </aside>
+
+      <!-- Right Panel (Map) -->
+      <main class="right-panel-map">
+        <!-- Main Map Background -->
+        <div id="map-container">
+          <div id="map"></div>
+        </div>
+
+        <!-- Weather Overlay (Top Right) -->
+        <div class="top-right-overlay">
+          <div id="weather-widget" class="glass-panel weather-card hidden">
+             <!-- Weather info injected here -->
+          </div>
+        </div>
+
+        <!-- Footer / Legend -->
+        <footer class="glass-panel map-legend">
+          <div class="legend-item">
+            <span class="risk-dot low"></span>
+            <span>Low Risk</span>
+          </div>
+          <div class="legend-item">
+            <span class="risk-dot medium"></span>
+            <span>Medium Risk</span>
+          </div>
+          <div class="legend-item">
+            <span class="risk-dot high"></span>
+            <span>High Risk</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      // Splash → Login transition
+      function enterLogin() {
+        const splash = document.getElementById('splash-screen');
+        const auth   = document.getElementById('auth-screen');
+        splash.classList.add('exit');
+        setTimeout(() => {
+          splash.style.display = 'none';
+          auth.style.display   = 'block';
+          auth.classList.remove('hidden');
+          // Fade in the login screen
+          auth.style.opacity = '0';
+          requestAnimationFrame(() => {
+            auth.style.transition = 'opacity 0.6s ease';
+            auth.style.opacity    = '1';
+          });
+        }, 800);
+      }
+    </script>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

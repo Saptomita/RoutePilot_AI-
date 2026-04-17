@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoutePilot AI | Intelligence Report</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Mapbox API logic handled via dynamic module loading in src/api -->
+  </head>
+  <body>
+    <div id="details-app">
+      <!-- Background Map (Blurred/Darkened) -->
+      <div id="details-map" class="background-map"></div>
+
+      <!-- Main Interface overlay -->
+      <main class="details-overlay">
+        <header class="glass-panel details-header">
+          <div class="logo">
+            <h1>RoutePilot <span class="accent">Intelligence</span></h1>
+          </div>
+          <button id="close-btn" class="secondary-btn">Close Report</button>
+        </header>
+
+        <div class="report-grid">
+          <!-- Left Column: Metrics -->
+          <div class="glass-panel metrics-panel">
+            <h2 id="route-title" class="section-title">Analyzing Route Data...</h2>
+            
+            <div class="score-card">
+              <div class="score-circle" id="risk-score-circle">
+                <span id="risk-score-value">--</span>
+              </div>
+              <div class="score-label">
+                <h3 id="risk-level-badge">CALCULATING...</h3>
+                <p>AI Real-Time Risk Index</p>
+              </div>
+            </div>
+
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <span class="stat-icon">📏</span>
+                  <span class="stat-title">Total Distance</span>
+                  <span class="stat-value" id="val-distance">--</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-icon">⏱️</span>
+                  <span class="stat-title">Est. Duration</span>
+                  <span class="stat-value" id="val-duration">--</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-icon">💰</span>
+                  <span class="stat-title">Est. Cost</span>
+                  <span class="stat-value" id="val-cost">--</span>
+                </div>
+              </div>
+
+            <div class="weather-report">
+              <h3 class="subsection-title">Meteorological Impact</h3>
+              <div class="weather-flex">
+                <div class="weather-massive-icon" id="val-weather-icon">--</div>
+                <div>
+                  <h4 id="val-weather-type">--</h4>
+                  <p id="val-weather-temp">--</p>
+                </div>
+              </div>
+              <p class="weather-desc" id="val-weather-desc">Awaiting atmospheric data ingestion.</p>
+            </div>
+            
+            <div class="action-buttons">
+               <button class="primary-btn" id="print-btn">
+                 <span>Download PDF Report</span>
+                 <span class="btn-shine"></span>
+               </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Map Preview -->
+          <div class="right-panel">
+            <div class="glass-panel mini-map-container" id="isolated-map">
+                <!-- Inner map loaded via js -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/details.js"></script>
+  </body>
+</html>
