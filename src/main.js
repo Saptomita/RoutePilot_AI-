@@ -25,10 +25,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const splashScreen = document.getElementById('splash-screen');
   const authScreen = document.getElementById('auth-screen');
   const authForm = document.getElementById('login-form');
+  const app = document.getElementById('app');
 
   if (localStorage.getItem('userProfileData')) {
     if (splashScreen) splashScreen.style.display = 'none';
     if (authScreen) authScreen.classList.add('hidden');
+    if (app) app.style.display = 'flex';
   }
 
   if (authForm) {
@@ -58,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           authScreen.classList.add('hidden');
           authScreen.style.display = 'none';
+          if (app) app.style.display = 'flex';
           btn.innerHTML = originalHTML;
           btn.style.opacity = '1';
         }, 500);
