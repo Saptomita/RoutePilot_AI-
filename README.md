@@ -10,7 +10,6 @@ An intelligent route planning system that combines traffic, weather insights, an
 ✨ Features
 
 🗺️ Smart Route Optimization
-
 🚦 Traffic-Aware Navigation
 
 🌧️ Weather-Integrated Routing
