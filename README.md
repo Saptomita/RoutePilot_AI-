@@ -7,39 +7,25 @@ An intelligent route planning system that combines traffic, weather insights, an
 👉(https://routepilotai.netlify.app/)
 
 
-
-
 ✨ Features
-
-🗺️ Smart Route Optimization
-
-🚦 Traffic-Aware Navigation
-
-🌧️ Weather-Integrated Routing
-
-💰 Travel Cost Estimator
-
-📍 Route Insights Dashboard
-
-⚠️ AI-Based Risk Analysis
+1. 🗺️ Smart Route Optimization
+2. 🚦 Traffic-Aware Navigation
+3. 🌧️ Weather-Integrated Routing
+4. 💰 Travel Cost Estimator
+5. 📍 Route Insights Dashboard
+6. ⚠️ AI-Based Risk Analysis
 
 
 🛠️ Tech Stack
-Vite
-
-JavaScript
-
-MapTiler API
-
-Weather API
-
-Netlify (Deployment)
-
+1. Vite
+2. JavaScript
+3. MapTiler API
+4. Weather API
+5. Netlify (Deployment)
 
 
 
 ⚙️ How It Works
-
 1. User inputs source and destination
 2. Map API generates route options
 3. Weather API analyzes environmental conditions
@@ -48,14 +34,10 @@ Netlify (Deployment)
 6. AI combines all factors to generate a Route Risk Score
 
 
-
 🔮 Future Scope
-
-Real-time traffic integration (Google Maps API)
-
-AI-based route prediction using machine learning
-
-Voice-assisted navigation
+1. Real-time traffic integration (Google Maps API)
+2. AI-based route prediction using machine learning
+3. Voice-assisted navigation
 
 
 📸 Screenshots
