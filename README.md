@@ -24,6 +24,18 @@ An intelligent route planning system that combines traffic, weather insights, an
 ⚠️ AI-Based Risk Analysis
 
 
+🛠️ Tech Stack
+Vite
+
+JavaScript
+
+MapTiler API
+
+Weather API
+
+Netlify (Deployment)
+
+
 
 
 ⚙️ How It Works
