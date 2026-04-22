@@ -7,9 +7,11 @@ An intelligent route planning system that combines traffic, weather insights, an
 👉(https://routepilotai.netlify.app/)
 
 
+
 ✨ Features
 
 🗺️ Smart Route Optimization
+
 🚦 Traffic-Aware Navigation
 
 🌧️ Weather-Integrated Routing
@@ -21,6 +23,7 @@ An intelligent route planning system that combines traffic, weather insights, an
 ⚠️ AI-Based Risk Analysis
 
 
+
 ⚙️ How It Works
 
 1. User inputs source and destination
@@ -30,6 +33,7 @@ An intelligent route planning system that combines traffic, weather insights, an
 5. Cost estimator calculates travel cost
 6. AI combines all factors to generate a Route Risk Score
 
+
 🔮 Future Scope
 
 Real-time traffic integration (Google Maps API)
@@ -37,6 +41,7 @@ Real-time traffic integration (Google Maps API)
 AI-based route prediction using machine learning
 
 Voice-assisted navigation
+
 
 📸 Screenshots
 
