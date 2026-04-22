@@ -1,10 +1,11 @@
 🚀 RoutePilot AI
 
-An intelligent route planning system that combines traffic, weather insights, and cost estimation to deliver smarter, safer travel decisions.RoutePilot AI doesn’t just suggest the shortest path—it intelligently evaluates routes using real-time traffic, weather impact, and cost estimation to deliver the safest, smartest, and most efficient journey.Unlike traditional navigation tools, RoutePilot acts as a decision-making assistant, not just a map.
+An intelligent route planning system that combines traffic, weather insights, and cost estimation to deliver smarter, safer travel decisions. RoutePilot AI doesn’t just suggest the shortest path—it intelligently evaluates routes using real-time traffic, weather impact, and cost estimation to deliver the safest, smartest, and most efficient journey.Unlike traditional navigation tools, RoutePilot acts as a decision-making assistant, not just a map.
 
 🌐 Live Demo
 
 👉(https://routepilotai.netlify.app/)
+
 
 
 
@@ -24,6 +25,7 @@ An intelligent route planning system that combines traffic, weather insights, an
 
 
 
+
 ⚙️ How It Works
 
 1. User inputs source and destination
@@ -32,6 +34,7 @@ An intelligent route planning system that combines traffic, weather insights, an
 4. Traffic data adjusts route efficiency
 5. Cost estimator calculates travel cost
 6. AI combines all factors to generate a Route Risk Score
+
 
 
 🔮 Future Scope
