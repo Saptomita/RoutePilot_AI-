@@ -10,13 +10,20 @@ An intelligent route planning system that combines traffic, weather insights, an
 ✨ Features
 
 🗺️ Smart Route Optimization
+
 🚦 Traffic-Aware Navigation
+
 🌧️ Weather-Integrated Routing
+
 💰 Travel Cost Estimator
+
 📍 Route Insights Dashboard
+
 ⚠️ AI-Based Risk Analysis
 
+
 ⚙️ How It Works
+
 1. User inputs source and destination
 2. Map API generates route options
 3. Weather API analyzes environmental conditions
@@ -27,11 +34,14 @@ An intelligent route planning system that combines traffic, weather insights, an
 🔮 Future Scope
 
 Real-time traffic integration (Google Maps API)
+
 AI-based route prediction using machine learning
+
 Voice-assisted navigation
 
 📸 Screenshots
 
 <img width="1780" height="868" alt="Screenshot 2026-04-22 203552" src="https://github.com/user-attachments/assets/6b271c21-826b-4e63-a9d9-1b4afc898e7a" />
+
 <img width="1907" height="828" alt="Screenshot 2026-04-22 203515" src="https://github.com/user-attachments/assets/26af1aa9-8d76-4190-bfdc-538bf0fa8f8b" />
 
